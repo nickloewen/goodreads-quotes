@@ -1,0 +1,15 @@
+{
+  "name": "goodreads-quotes",
+  "version": "0.0.2",
+  "description": "Scrape Goodreads for quotes matching a certain tag.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "goodreads",
+    "quotes"
+  ],
+  "author": "Nick Loewen",
+  "license": "MIT"
+}
