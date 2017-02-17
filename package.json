@@ -7,7 +7,7 @@
     "test": "mocha"
   },
   "bin": {
-    "get-quotes": "./index.js"
+    "goodreads-quotes": "./index.js"
   },
   "keywords": [
     "goodreads",
