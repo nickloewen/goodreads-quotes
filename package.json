@@ -11,5 +11,13 @@
     "quotes"
   ],
   "author": "Nick Loewen",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "request": "^2.79.0",
+    "request-promise-native": "^1.0.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.23.1"
+  }
 }

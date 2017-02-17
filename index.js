@@ -1,56 +1,63 @@
-var request = require('request');
-var cheerio = require('cheerio');
+const request = require('request-promise-native')
+const cheerio = require('cheerio')
+const BASE_URL = 'http://www.goodreads.com/quotes/tag/'
+// var debug = require('debug')('quotes')
 
-exports.getQuotes = function (tag, config_max_pages=0) {
-	return new Promise((resolve, reject) => {
-		request("http://www.goodreads.com/quotes/tag/" + tag, (err, res, body) => {
-			if (err) { reject(err); return; }
-			resolve(body);
-		});
-	})
-	.then(html => {
-		let $ = cheerio.load(html);
-
-		let totalPages = $(".next_page").prev().html(); // default: get all the pages
-		let lastPage = totalPages;
-		if (config_max_pages != 0) { // user # of pages: get at most that many pages
-			lastPage = Math.min(config_max_pages, totalPages);
-		}
-
-		if (!$(".next_page").length) {
-			// there's only one page
-			totalPages = 1;
-		}
-
-		let promises = []
-
-		for (let i = 1; i <= totalPages; i++) {
-			promises.push(new Promise((resolve, reject) => {
-				request("http://www.goodreads.com/quotes/tag/" + tag + "?page=" + i, (err, res, body) => {
-					if (err) { reject(err); return; }
-					resolve(parsePage(body));
-				});
-			}));
-		}
-		return Promise.all(promises);
-	})
-	.catch(err => console.log(err));
+function getQuotes (tag) {
+  return new Promise(function (resolve, reject) {
+    getPageCount(tag).then(function (pageCount) {
+      let promises = []
+      for (let i = 1; i <= pageCount; i++) {
+        promises.push(getPage(tag, pageCount).then(html => parsePage(html)))
+      }
+      resolve(Promise.all(promises))
+    })
+  })
 }
 
-parsePage = function(html) {
-	let $ = cheerio.load(html);
-	let json = [];
+function parsePage (html) {
+  let $ = cheerio.load(html)
+  let json = []
 
-	$('.quoteDetails').each(function(i, obj) {
-		let quote = {
-			text: $('.quoteText', $(this)).contents().get(0).nodeValue.trim(),
-			authorOrTitle: $('.authorOrTitle', $(this)).html()
-		}
+  $('.quoteDetails').each(function (i, obj) {
+    let quote = {
+      text: $('.quoteText', $(this)).contents().get(0).nodeValue.trim(),
+      author: $('.authorOrTitle', $(this)).html()
+    }
 
-		if (quote.text.charAt(quote.text.length - 1) == '”') {
-			json.push(quote);
-		}
-	});
+    if (quote.text.charAt(quote.text.length - 1) === '”') {
+      json.push(quote)
+    }
+  })
 
-	return json;
+  return json
 }
+
+function getPageCount (tag) {
+  return new Promise(function (resolve, reject) {
+    request(BASE_URL + tag, function (err, res, body) {
+      if (err) { reject(err) }
+
+      let $ = cheerio.load(body)
+      let totalPages = $('.next_page').prev().html()
+      if (!$('.next_page').length) totalPages = 1
+
+      resolve(totalPages)
+    })
+  })
+}
+
+function getPage (tag, pageNumber) {
+  return new Promise(function (resolve, reject) {
+    request(BASE_URL + tag + '?page=' + pageNumber, (err, res, body) => {
+      if (err) { reject(err) }
+      resolve(body)
+    })
+  })
+}
+
+getQuotes('brainy')
+.then(function (quotes) {
+  quotes = [].concat.apply([], quotes)
+  process.stdout.write(JSON.stringify(quotes, null, 2))
+})
