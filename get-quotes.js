@@ -1,5 +1,8 @@
+#!/usr/bin/env node
+
 const request = require('request-promise-native')
 const cheerio = require('cheerio')
+const program = require('commander')
 const BASE_URL = 'http://www.goodreads.com/quotes/tag/'
 // var debug = require('debug')('quotes')
 
@@ -56,8 +59,18 @@ function getPage (tag, pageNumber) {
   })
 }
 
-module.exports.getQuotes('brainy')
-.then(function (quotes) {
-  quotes = [].concat.apply([], quotes)
-  process.stdout.write(JSON.stringify(quotes, null, 2))
-})
+function processQuotes (tag) {
+  module.exports.getQuotes(tag)
+  .then(function (quotes) {
+    quotes = [].concat.apply([], quotes)
+    process.stdout.write(JSON.stringify(quotes, null, 2))
+  })
+}
+
+program
+  .version('0.0.1')
+  .usage('<tag>')
+  .description('For a given tag, return a JSON object containing all of the matching Goodreads quotes.')
+  .arguments('<tag>')
+  .action(tag => processQuotes(tag))
+  .parse(process.argv)
