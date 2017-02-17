@@ -13,6 +13,7 @@
     "goodreads",
     "quotes"
   ],
+  "repository": "https://github.com/nickloewen/goodreads-quotes.git",
   "author": "Nick Loewen",
   "license": "MIT",
   "dependencies": {
