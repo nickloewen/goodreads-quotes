@@ -11,7 +11,7 @@ module.exports.getQuotes = function (tag) {
     getPageCount(tag).then(function (pageCount) {
       let promises = []
       for (let i = 1; i <= pageCount; i++) {
-        promises.push(getPage(tag, pageCount).then(html => parsePage(html)))
+        promises.push(getPage(tag, i).then(html => parsePage(html)))
       }
       resolve(Promise.all(promises))
     })
