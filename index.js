@@ -3,7 +3,7 @@ const cheerio = require('cheerio')
 const BASE_URL = 'http://www.goodreads.com/quotes/tag/'
 // var debug = require('debug')('quotes')
 
-function getQuotes (tag) {
+module.exports.getQuotes = function (tag) {
   return new Promise(function (resolve, reject) {
     getPageCount(tag).then(function (pageCount) {
       let promises = []
@@ -56,7 +56,7 @@ function getPage (tag, pageNumber) {
   })
 }
 
-getQuotes('brainy')
+module.exports.getQuotes('brainy')
 .then(function (quotes) {
   quotes = [].concat.apply([], quotes)
   process.stdout.write(JSON.stringify(quotes, null, 2))
